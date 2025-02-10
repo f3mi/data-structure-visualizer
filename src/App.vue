@@ -1,15 +1,17 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
+
+  <LinkedListView />
 </template>
 
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
 import HelloWorld from "./components/HelloWorld.vue";
+import LinkedListView from "./components/LinkedListView.vue";
 
 @Options({
   components: {
     HelloWorld,
+    LinkedListView,
   },
 })
 export default class App extends Vue {}

@@ -45,13 +45,13 @@ npm install
 
 ```
 
-### **3️⃣ Run the Development Server
+### **3️⃣ Run the Development Server**
 ```sh
 npm run dev
 
 ```
 
-### **🧪 Testing
+### **🧪 Testing**
 Run unit tests to ensure all data structures work correctly:
 ```sh
 npm run test
@@ -67,4 +67,7 @@ npm run test
 
 ## 📜 License
 This project is licensed under the MIT License.
+
+##📢 Connect
+📌 LinkedIn: [Emmanuel Oluborode](https://www.linkedin.com/in/emanoluborode/)
 
