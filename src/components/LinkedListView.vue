@@ -3,14 +3,17 @@
     <NavBar />
     
     <div class="controls">
-      <button @click="addNode" class="btn">➕ Add Node</button>
-      <button @click="removeNode" class="btn">❌ Remove Node</button>
+      <input v-model.number="insertValue" type="number" placeholder="Value" class="input-box"/>
+      <!-- <button @click="addNode" class="btn">➕ Add Node</button> -->
+      
       
       <input v-model.number="insertIndex" type="number" placeholder="Index" class="input-box"/>
       <button @click="addNodeAtIndex(insertIndex)" class="btn">📥 Insert At Index</button>
 
       <input v-model.number="deleteIndex" type="number" placeholder="Index" class="input-box"/>
       <button @click="removeNodeAtIndex(deleteIndex)" class="btn">🗑️ Remove At Index</button>
+
+      <button @click="removeNode" class="btn">❌ Remove Last node</button>
     </div>
 
     <div class="scroll-container">
@@ -24,34 +27,49 @@
 </template>
 
 <script lang="ts">
+declare global {
+  interface Window {
+    addNode: () => void;
+    removeNode: () => void;
+    addNodeAtIndex: (index: number) => void;
+    removeNodeAtIndex: (index: number) => void;
+  }
+}
 import { ref, onMounted } from "vue";
 import * as d3 from "d3";
 import NavBar from "./partials/NavBar.vue";
-
-interface NodeData {
-  id: number;
-  label: string;
-}
+import SinglyLinkedList from "@/utils/singlyLinkedList";
 
 export default {
-    components: {
+  components: {
     NavBar,
   },
   setup() {
     const svgContainer = ref<SVGElement | null>(null);
-    let data: NodeData[] = [];
-    let nextId = 1;
+    const llist = new SinglyLinkedList();
     const nodeRadius = 35;
     const gap = 180;
     const baseWidth = 200;
     const height = 250;
 
     const insertIndex = ref<number>(0);
+    const insertValue = ref<number>(0);
     const deleteIndex = ref<number>(0);
 
     onMounted(() => {
       draw();
     });
+
+    function getLinkedListData() {
+      let nodes = [];
+      let current = llist.head;
+      while (current) {
+        nodes.push({ id: current.value, label: current.value });
+        current = current.next;
+      }
+      nodes.push({ id: -1, label: "Null" });
+      return nodes;
+    }
 
     function draw() {
       if (!svgContainer.value) return;
@@ -72,8 +90,7 @@ export default {
         .attr("fill", "#ffffff");
 
       function update() {
-        const displayData = [...data, { id: -1, label: "Null" }];
-        
+        const displayData = getLinkedListData();
         const svgWidth = Math.max(baseWidth + displayData.length * gap, window.innerWidth * 0.9);
         svg.attr("width", svgWidth).attr("height", height);
 
@@ -118,8 +135,6 @@ export default {
         nodes.exit().remove();
       }
 
-      update();
-
       function highlightTraversal(index: number, callback: Function) {
         let i = 0;
 
@@ -141,46 +156,48 @@ export default {
         step();
       }
 
-
       window.addNode = () => {
-        const label = `Node ${String.fromCharCode(65 + data.length)}`;
-        data.push({ id: nextId++, label });
+        llist.append(insertValue.value);
         update();
       };
 
       window.removeNode = () => {
-        data.pop();
-        update();
+        if (llist.length > 0) {
+          llist.remove(llist.length - 1);
+          update();
+        }
       };
 
       window.addNodeAtIndex = (index: number) => {
-        if (index < 0 || index > data.length) {
-          alert("Invalid index!"); 
+        if (index < 0 || index > llist.length) {
+          alert("Invalid index!");
           return;
         }
         highlightTraversal(index, () => {
-          const label = `Node ${String.fromCharCode(65 + data.length)}`;
-          data.splice(index, 0, { id: nextId++, label });
+          llist.insert(index, insertValue.value);
           update();
         });
       };
 
       window.removeNodeAtIndex = (index: number) => {
-        if (index < 0 || index >= data.length) {
-          alert("Invalid index!"); 
+        if (index < 0 || index >= llist.length) {
+          alert("Invalid index!");
           return;
         }
-         highlightTraversal(index, () => {
-          data.splice(index, 1);
+        highlightTraversal(index, () => {
+          llist.remove(index);
           update();
         });
       };
+      
+      update();
     }
 
     return {
       svgContainer,
       insertIndex,
       deleteIndex,
+      insertValue,
       addNode: () => window.addNode(),
       removeNode: () => window.removeNode(),
       addNodeAtIndex: (index: number) => window.addNodeAtIndex(index),
@@ -189,6 +206,7 @@ export default {
   },
 };
 </script>
+
 
 <style>
 html, body {
