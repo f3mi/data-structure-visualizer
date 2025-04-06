@@ -1,74 +1,102 @@
 <template>
-  <div class="bg-gray-100 rounded-lg p-4">
-    <h3 class="text-lg font-semibold mb-4 text-gray-800">Controls</h3>
-    
-    <!-- Operation Selector -->
-    <div class="mb-4">
-      <label class="block text-sm font-medium text-gray-700 mb-1">Operation</label>
-      <select v-model="selectedOperation" class="w-full p-2 border rounded">
-        <option v-for="op in availableOperations" :key="op" :value="op">{{ op }}</option>
-      </select>
+  <div class="control-panel h-full">
+    <div class="control-panel-header">
+      <h3 class="text-lg font-semibold">Controls</h3>
     </div>
     
-    <!-- Value Input -->
-    <div class="mb-4" v-if="operationRequiresValue">
-      <label class="block text-sm font-medium text-gray-700 mb-1">Value</label>
-      <input type="text" v-model="operationValue" class="w-full p-2 border rounded" placeholder="Enter value">
-    </div>
-
-    <!-- Index Input for specific operations -->
-    <div class="mb-4" v-if="operationRequiresIndex">
-      <label class="block text-sm font-medium text-gray-700 mb-1">Index</label>
-      <input type="number" v-model="operationIndex" class="w-full p-2 border rounded" placeholder="Enter index" min="0">
-    </div>
-    
-    <!-- Execute Button -->
-    <button 
-      @click="executeOperation" 
-      class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition-colors mb-6"
-    >
-      Execute
-    </button>
-    
-    <!-- Animation Controls -->
-    <div class="mb-4">
-      <label class="block text-sm font-medium text-gray-700 mb-1">Animation Speed</label>
-      <input type="range" v-model="speed" min="1" max="10" class="w-full">
-      <div class="flex justify-between text-xs text-gray-500">
-        <span>Slow</span>
-        <span>Fast</span>
+    <div class="control-panel-content">
+      <!-- Operation Selector -->
+      <div class="form-group">
+        <label class="form-label">Operation</label>
+        <select v-model="selectedOperation" class="form-select">
+          <option v-for="op in availableOperations" :key="op" :value="op">{{ op }}</option>
+        </select>
       </div>
-    </div>
-    
-    <div class="flex space-x-2">
+      
+      <!-- Value Input -->
+      <div class="form-group" v-if="operationRequiresValue">
+        <label class="form-label">Value</label>
+        <input type="text" v-model="operationValue" class="form-input" placeholder="Enter value">
+      </div>
+
+      <!-- Index Input for specific operations -->
+      <div class="form-group" v-if="operationRequiresIndex">
+        <label class="form-label">Index</label>
+        <input type="number" v-model="operationIndex" class="form-input" placeholder="Enter index" min="0">
+      </div>
+      
+      <!-- Execute Button -->
       <button 
-        @click="togglePlayPause" 
-        class="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded hover:bg-gray-300 transition-colors"
+        @click="executeOperation" 
+        class="btn btn-primary btn-full mb-6"
       >
-        {{ isPlaying ? 'Pause' : 'Play' }}
+        Execute
       </button>
-      <button 
-        @click="reset" 
-        class="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded hover:bg-gray-300 transition-colors"
-      >
-        Reset
-      </button>
+      
+      <!-- Animation Controls -->
+      <div class="form-group">
+        <div class="flex justify-between items-center mb-2">
+          <label class="form-label mb-0">Animation Speed</label>
+          <span class="text-sm font-mono">{{ speed }}/10</span>
+        </div>
+        <input 
+          type="range" 
+          v-model="speed" 
+          min="1" 
+          max="10" 
+          class="range-slider-input"
+        >
+        <div class="range-slider-labels">
+          <span>Slow</span>
+          <span>Fast</span>
+        </div>
+      </div>
+      
+      <div class="flex gap-3 mt-4">
+        <button 
+          @click="togglePlayPause" 
+          class="btn btn-secondary flex-1"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+            <path v-if="!isPlaying" d="M5 3l14 9-14 9V3z"></path>
+            <path v-else d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"></path>
+          </svg>
+          {{ isPlaying ? 'Pause' : 'Play' }}
+        </button>
+        <button 
+          @click="reset" 
+          class="btn btn-secondary flex-1"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+            <path d="M3 2v6h6"></path>
+            <path d="M3 13a9 9 0 1 0 3-7.7L3 8"></path>
+          </svg>
+          Reset
+        </button>
+      </div>
+      
+      <!-- Operation Log -->
+      <div class="mt-6 p-3 bg-gray-50 border border-gray-100 rounded text-sm" v-if="operationLog">
+        <div class="font-medium mb-1">Last Operation:</div>
+        <div class="text-gray-600">{{ operationLog }}</div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { useDataStructureStore } from '../store'
+import { ref, computed, watch } from 'vue';
+import { useDataStructureStore } from '../store';
 
-const store = useDataStructureStore()
-const activeDataStructure = computed(() => store.activeDataStructure)
-const isPlaying = computed(() => store.isPlaying)
+const store = useDataStructureStore();
+const activeDataStructure = computed(() => store.activeDataStructure);
+const isPlaying = computed(() => store.isPlaying);
+const operationLog = computed(() => store.operationLog);
 
-const selectedOperation = ref('')
-const operationValue = ref('')
-const operationIndex = ref(0)
-const speed = ref(5)
+const selectedOperation = ref('');
+const operationValue = ref('');
+const operationIndex = ref(0);
+const speed = ref(5);
 
 // Operations available for each data structure
 const operationsMap = {
@@ -78,52 +106,52 @@ const operationsMap = {
   'Binary Tree': ['Insert', 'Delete', 'Search', 'In-order Traversal', 'Pre-order Traversal', 'Post-order Traversal'],
   'Heap': ['Insert', 'Extract Min/Max', 'Heapify'],
   'Graph': ['Add Vertex', 'Add Edge', 'Remove Vertex', 'Remove Edge', 'BFS', 'DFS']
-}
+};
 
 const availableOperations = computed(() => {
-  return operationsMap[activeDataStructure.value as keyof typeof operationsMap] || []
-})
+  return operationsMap[activeDataStructure.value as keyof typeof operationsMap] || [];
+});
 
 const operationRequiresValue = computed(() => {
-  const noValueOperations = ['Delete at Head', 'Delete at Tail', 'Pop', 'Dequeue', 'Peek', 'Extract Min/Max', 'In-order Traversal', 'Pre-order Traversal', 'Post-order Traversal', 'BFS', 'DFS']
-  return !noValueOperations.includes(selectedOperation.value)
-})
+  const noValueOperations = ['Delete at Head', 'Delete at Tail', 'Pop', 'Dequeue', 'Peek', 'Extract Min/Max', 'In-order Traversal', 'Pre-order Traversal', 'Post-order Traversal', 'BFS', 'DFS'];
+  return !noValueOperations.includes(selectedOperation.value);
+});
 
 const operationRequiresIndex = computed(() => {
-  return ['Insert at Index', 'Delete at Index'].includes(selectedOperation.value)
-})
+  return ['Insert at Index', 'Delete at Index'].includes(selectedOperation.value);
+});
 
 watch(activeDataStructure, () => {
-  selectedOperation.value = availableOperations.value[0] || ''
-  operationValue.value = ''
-  operationIndex.value = 0
-})
+  selectedOperation.value = availableOperations.value[0] || '';
+  operationValue.value = '';
+  operationIndex.value = 0;
+});
 
 watch(speed, (newSpeed) => {
-  store.setAnimationSpeed(newSpeed)
-})
+  store.setAnimationSpeed(newSpeed);
+});
 
 function executeOperation() {
   store.executeOperation({
     type: selectedOperation.value,
     value: operationValue.value,
     index: operationIndex.value
-  })
+  });
   
   // Clear inputs after operation
   if (operationRequiresValue.value) {
-    operationValue.value = ''
+    operationValue.value = '';
   }
   if (operationRequiresIndex.value) {
-    operationIndex.value = 0
+    operationIndex.value = 0;
   }
 }
 
 function togglePlayPause() {
-  store.togglePlayPause()
+  store.togglePlayPause();
 }
 
 function reset() {
-  store.reset()
+  store.reset();
 }
 </script>

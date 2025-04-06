@@ -1,42 +1,51 @@
 <template>
-  <div class="flex flex-col items-center">
-    <div v-if="loading" class="text-center py-12">
-      <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-600"></div>
-      <p class="mt-2 text-gray-600">{{ loadingMessage }}</p>
+  <div class="visualizer-container">
+    <div class="visualizer-header">
+      <h3 class="card-title">Linked List Visualization</h3>
+      <div class="theme-toggle" :class="{ active: isDarkMode }" @click="toggleDarkMode"></div>
     </div>
     
-    <div v-else>
-      <div class="flex items-center justify-center flex-wrap" v-if="linkedList.length > 0">
-        <div 
-          v-for="(node, index) in linkedList" 
-          :key="index" 
-          class="flex items-center"
-        >
-          <div 
-            class="flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all duration-300"
-            :class="[
-              node.highlighted ? 'bg-yellow-200 border-yellow-500' : 'bg-white border-indigo-500',
-              node.status === 'inserting' ? 'animate-bounce bg-green-100 border-green-500' : '',
-              node.status === 'deleting' ? 'animate-pulse bg-red-100 border-red-500' : '',
-              node.status === 'searching' ? 'animate-pulse bg-blue-100 border-blue-500' : ''
-            ]"
-          >
-            {{ node.value }}
+    <div class="visualizer-content">
+      <div class="flex flex-col items-center w-full">
+        <div v-if="loading" class="text-center py-12">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+          <p class="mt-2 text-muted-foreground">{{ loadingMessage }}</p>
+        </div>
+        
+        <div v-else class="w-full">
+          <div class="linked-list-container" v-if="linkedList.length > 0">
+            <div 
+              v-for="(node, index) in linkedList" 
+              :key="index" 
+              class="node"
+            >
+              <div 
+                class="node-content"
+                :class="{
+                  'highlighted': node.highlighted,
+                  'inserting': node.status === 'inserting',
+                  'deleting': node.status === 'deleting',
+                  'searching': node.status === 'searching'
+                }"
+              >
+                {{ node.value }}
+              </div>
+              
+              <div v-if="index < linkedList.length - 1" class="node-pointer">
+                <div class="pointer-line"></div>
+                <div class="pointer-arrow"></div>
+              </div>
+            </div>
           </div>
           
-          <div v-if="index < linkedList.length - 1" class="flex items-center mx-2">
-            <div class="w-6 h-0.5 bg-indigo-500"></div>
-            <div class="w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[6px] border-l-indigo-500"></div>
+          <div v-else class="text-center py-12 text-muted-foreground">
+            Empty linked list. Use the control panel to add nodes.
+          </div>
+          
+          <div class="mt-6 text-sm text-muted-foreground text-center" v-if="operationLog">
+            Last operation: {{ operationLog }}
           </div>
         </div>
-      </div>
-      
-      <div v-else class="text-center py-12 text-gray-500">
-        Empty linked list. Use the control panel to add nodes.
-      </div>
-      
-      <div class="mt-6 text-sm text-gray-500" v-if="operationLog">
-        Last operation: {{ operationLog }}
       </div>
     </div>
   </div>
@@ -55,6 +64,13 @@ const animationSpeed = computed(() => store.animationSpeed)
 
 const loading = ref(false)
 const loadingMessage = ref('')
+const isDarkMode = ref(false)
+
+// Toggle dark mode
+function toggleDarkMode() {
+  isDarkMode.value = !isDarkMode.value
+  document.body.classList.toggle('dark-mode', isDarkMode.value)
+}
 
 // Watch for operations and execute animations
 watch(currentOperation, async (operation) => {
@@ -184,6 +200,11 @@ function wait(ms: number) {
 }
 
 onMounted(() => {
+  // Check system preference for dark mode
+  const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  isDarkMode.value = prefersDarkMode
+  document.body.classList.toggle('dark-mode', prefersDarkMode)
+  
   // Initialize with sample data
   setTimeout(() => {
     if (linkedList.value.length === 0) {
