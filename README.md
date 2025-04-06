@@ -52,7 +52,7 @@ npm run dev
 ```
 
 ### **🧪 Testing**
-Run unit tests to ensure all data structures work correctly:
+Run unit tests to ensure all da ta structures work correctly:
 ```sh
 npm run test
 
