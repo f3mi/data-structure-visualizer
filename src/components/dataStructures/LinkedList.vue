@@ -1,5 +1,5 @@
 <template>
-  <div class="visualizer-container">
+  <div class="visualizer-container h-full">
     <div class="visualizer-header">
       <h3 class="card-title">Linked List Visualization</h3>
       <div class="theme-toggle" :class="{ active: isDarkMode }" @click="toggleDarkMode"></div>
@@ -13,37 +13,56 @@
         </div>
         
         <div v-else class="w-full">
-          <div class="linked-list-container" v-if="linkedList.length > 0">
-            <div 
-              v-for="(node, index) in linkedList" 
-              :key="index" 
-              class="node"
-            >
+          <!-- Horizontal scrollable container for linked list -->
+          <div class="overflow-x-auto pb-4 w-full">
+            <div class="linked-list-container inline-flex flex-nowrap min-w-full" v-if="linkedList.length > 0">
               <div 
-                class="node-content"
-                :class="{
-                  'highlighted': node.highlighted,
-                  'inserting': node.status === 'inserting',
-                  'deleting': node.status === 'deleting',
-                  'searching': node.status === 'searching'
-                }"
+                v-for="(node, index) in linkedList" 
+                :key="index" 
+                class="node"
               >
-                {{ node.value }}
-              </div>
-              
-              <div v-if="index < linkedList.length - 1" class="node-pointer">
-                <div class="pointer-line"></div>
-                <div class="pointer-arrow"></div>
+                <div 
+                  class="node-content"
+                  :class="{
+                    'highlighted': node.highlighted,
+                    'inserting': node.status === 'inserting',
+                    'deleting': node.status === 'deleting',
+                    'searching': node.status === 'searching'
+                  }"
+                >
+                  {{ node.value }}
+                </div>
+                
+                <div v-if="index < linkedList.length - 1" class="node-pointer">
+                  <div class="pointer-line"></div>
+                  <div class="pointer-arrow"></div>
+                </div>
               </div>
             </div>
           </div>
           
-          <div v-else class="text-center py-12 text-muted-foreground">
+          <div v-if="linkedList.length === 0" class="text-center py-12 text-muted-foreground">
             Empty linked list. Use the control panel to add nodes.
           </div>
           
-          <div class="mt-6 text-sm text-muted-foreground text-center" v-if="operationLog">
-            Last operation: {{ operationLog }}
+          <div class="mt-4 p-2 bg-gray-50 rounded border border-gray-100">
+            <div class="text-sm font-medium">Current Status:</div>
+            <div class="text-sm text-muted-foreground" v-if="operationLog">
+              {{ operationLog }}
+            </div>
+            <div class="text-sm text-muted-foreground" v-else>
+              No operations performed yet
+            </div>
+          </div>
+          
+          <!-- Node details section -->
+          <div class="mt-4 p-2 bg-gray-50 rounded border border-gray-100">
+            <div class="text-sm font-medium mb-2">List Details:</div>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+              <div>Length: <span class="font-mono">{{ linkedList.length }}</span></div>
+              <div>Head: <span class="font-mono">{{ linkedList.length > 0 ? linkedList[0].value : 'null' }}</span></div>
+              <div>Tail: <span class="font-mono">{{ linkedList.length > 0 ? linkedList[linkedList.length - 1].value : 'null' }}</span></div>
+            </div>
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-100 rounded-lg p-4 h-96 overflow-auto">
+  <div class="bg-gray-100 rounded-lg h-full flex flex-col">
     <component 
       :is="activeVisualizerComponent" 
       :animationSpeed="animationSpeed"
