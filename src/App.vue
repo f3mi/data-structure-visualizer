@@ -176,7 +176,3 @@ function toggleDarkMode() {
 }
 </script>
 
-<style>
-/* Import the custom styles */
-@import './assets/css/style.css';
-</style>
