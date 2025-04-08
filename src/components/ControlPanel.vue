@@ -15,13 +15,19 @@
         >
           <option v-if="activeDataStructure === 'Linked List'" value="Insert at Head">Insert at Head</option>
           <option v-if="activeDataStructure === 'Linked List'" value="Insert at Tail">Insert at Tail</option>
+          <option v-if="activeDataStructure === 'Linked List'" value="Insert at Index">Insert at Index</option>
           <option v-if="activeDataStructure === 'Linked List'" value="Delete at Head">Delete at Head</option>
           <option v-if="activeDataStructure === 'Linked List'" value="Delete at Tail">Delete at Tail</option>
+          <option v-if="activeDataStructure === 'Linked List'" value="Delete at Index">Delete at Index</option>
           <option v-if="activeDataStructure === 'Linked List'" value="Search">Search</option>
           <option v-if="activeDataStructure === 'Stack'" value="Push">Push</option>
           <option v-if="activeDataStructure === 'Stack'" value="Pop">Pop</option>
           <option v-if="activeDataStructure === 'Stack'" value="Peek">Peek</option>
           <option v-if="activeDataStructure === 'Stack'" value="Search">Search</option>
+          <option v-if="activeDataStructure === 'Queue'" value="Enqueue">Enqueue</option>
+          <option v-if="activeDataStructure === 'Queue'" value="Dequeue">Dequeue</option>
+          <option v-if="activeDataStructure === 'Queue'" value="Peek">Peek</option>
+          <option v-if="activeDataStructure === 'Queue'" value="Search">Search</option>
         </select>
       </div>
       
@@ -62,14 +68,14 @@
       <div class="control-group">
         <div class="speed-control">
           <label class="control-label">Animation Speed</label>
-          <span class="speed-value">{{ animationSpeed }}/10</span>
+          <span class="speed-value">{{ animationSpeed }}/5</span>
         </div>
         <input 
           type="range" 
           v-model="animationSpeed" 
-          min="0.1" 
-          max="2" 
-          step="0.1"
+          min="1" 
+          max="5" 
+          step="1"
           class="speed-slider"
         >
         <div class="speed-labels">
@@ -139,7 +145,9 @@ const showValueInput = computed(() => {
   return (
     selectedOperation.value === 'Insert at Head' ||
     selectedOperation.value === 'Insert at Tail' ||
+    selectedOperation.value === 'Insert at Index' ||
     selectedOperation.value === 'Push' ||
+    selectedOperation.value === 'Enqueue' ||
     selectedOperation.value === 'Search'
   );
 });

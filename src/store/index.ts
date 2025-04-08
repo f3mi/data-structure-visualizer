@@ -67,17 +67,20 @@ export const useDataStructureStore = defineStore("dataStructure", {
     },
 
     setOperation(type: string, value?: any, index?: number) {
-      const steps = this.getCodeSteps(type, value, index);
-      this.currentOperation = {
-        type,
-        value,
-        index,
-        completed: false,
-        currentStep: 0,
-        codeSteps: steps,
-      };
-      this.currentStep = 0;
-      this.codeSteps = steps;
+      if (!this.currentOperation || this.currentOperation.completed) {
+        const steps = this.getCodeSteps(type, value, index);
+        this.currentOperation = {
+          type,
+          value,
+          index,
+          completed: false,
+          currentStep: 0,
+          codeSteps: steps,
+        };
+        this.currentStep = 0;
+        this.codeSteps = steps;
+        this.operationLog = `Starting ${type} operation...`;
+      }
     },
 
     getCodeSteps(type: string, value?: any, index?: number): CodeStep[] {
@@ -380,6 +383,128 @@ export const useDataStructureStore = defineStore("dataStructure", {
               highlight: false,
             },
           ];
+        case "Enqueue":
+          return [
+            {
+              line: "newNode = Node(value)",
+              explanation: "Create new node with value",
+              highlight: false,
+            },
+            {
+              line: "if queue.isEmpty():",
+              explanation: "Check if queue is empty",
+              highlight: false,
+            },
+            {
+              line: "    front = newNode",
+              explanation: "Set front to new node if empty",
+              highlight: false,
+            },
+            {
+              line: "else:",
+              explanation: "Queue not empty",
+              highlight: false,
+            },
+            {
+              line: "    rear.next = newNode",
+              explanation: "Link rear to new node",
+              highlight: false,
+            },
+            {
+              line: "rear = newNode",
+              explanation: "Update rear pointer",
+              highlight: false,
+            },
+          ];
+        case "Dequeue":
+          return [
+            {
+              line: "if queue.isEmpty():",
+              explanation: "Check if queue is empty",
+              highlight: false,
+            },
+            {
+              line: "    return null",
+              explanation: "Nothing to dequeue",
+              highlight: false,
+            },
+            {
+              line: "temp = front",
+              explanation: "Store front node",
+              highlight: false,
+            },
+            {
+              line: "front = front.next",
+              explanation: "Move front pointer",
+              highlight: false,
+            },
+            {
+              line: "if front is null:",
+              explanation: "Check if queue is now empty",
+              highlight: false,
+            },
+            {
+              line: "    rear = null",
+              explanation: "Reset rear pointer",
+              highlight: false,
+            },
+            {
+              line: "return temp.value",
+              explanation: "Return dequeued value",
+              highlight: false,
+            },
+          ];
+        case "Peek":
+          return [
+            {
+              line: "if queue.isEmpty():",
+              explanation: "Check if queue is empty",
+              highlight: false,
+            },
+            {
+              line: "    return null",
+              explanation: "Nothing to peek",
+              highlight: false,
+            },
+            {
+              line: "return front.value",
+              explanation: "Return front value",
+              highlight: false,
+            },
+          ];
+        case "Search":
+          return [
+            {
+              line: "current = front",
+              explanation: "Start from front",
+              highlight: false,
+            },
+            {
+              line: "while current:",
+              explanation: "Traverse queue",
+              highlight: false,
+            },
+            {
+              line: "    if current.value == target:",
+              explanation: "Check current node",
+              highlight: false,
+            },
+            {
+              line: "        return current",
+              explanation: "Value found",
+              highlight: false,
+            },
+            {
+              line: "    current = current.next",
+              explanation: "Move to next node",
+              highlight: false,
+            },
+            {
+              line: "return null",
+              explanation: "Value not found",
+              highlight: false,
+            },
+          ];
         default:
           return [];
       }
@@ -412,12 +537,71 @@ export const useDataStructureStore = defineStore("dataStructure", {
 
     completeOperation() {
       if (this.currentOperation) {
-        this.currentOperation = { ...this.currentOperation, completed: true };
+        const { type, value, index } = this.currentOperation;
+
+        // Generate detailed operation log messages
+        if (type.startsWith("Insert")) {
+          if (type === "Insert at Head") {
+            this.operationLog = `Inserted value ${value} at the head of the list`;
+          } else if (type === "Insert at Tail") {
+            this.operationLog = `Inserted value ${value} at the tail of the list`;
+          } else if (type === "Insert at Index") {
+            this.operationLog = `Inserted value ${value} at index ${index} of the list`;
+          }
+        } else if (type.startsWith("Delete")) {
+          if (type === "Delete at Head" && this.linkedList.length > 0) {
+            this.operationLog = `Deleted value from the head of the list`;
+          } else if (type === "Delete at Tail" && this.linkedList.length > 0) {
+            this.operationLog = `Deleted value from the tail of the list`;
+          } else if (type === "Delete at Index" && this.linkedList.length > 0) {
+            this.operationLog = `Deleted value at index ${index} of the list`;
+          } else {
+            this.operationLog = `Cannot delete from empty list`;
+          }
+        } else if (type === "Push") {
+          this.operationLog = `Pushed value ${value} onto the stack`;
+        } else if (type === "Pop") {
+          if (this.stack.length > 0) {
+            this.operationLog = `Popped value from the stack`;
+          } else {
+            this.operationLog = `Cannot pop from empty stack`;
+          }
+        } else if (type === "Enqueue") {
+          this.operationLog = `Enqueued value ${value} to the queue`;
+        } else if (type === "Dequeue") {
+          if (this.queue.length > 0) {
+            this.operationLog = `Dequeued value from the queue`;
+          } else {
+            this.operationLog = `Cannot dequeue from empty queue`;
+          }
+        } else if (type === "Search") {
+          // Search results are handled in the specific search functions
+        } else if (type === "Peek") {
+          if (this.activeDataStructure === "Stack") {
+            if (this.stack.length > 0) {
+              this.operationLog = `Peek: Top element is ${
+                this.stack[this.stack.length - 1].value
+              }`;
+            } else {
+              this.operationLog = `Stack is empty`;
+            }
+          } else if (this.activeDataStructure === "Queue") {
+            if (this.queue.length > 0) {
+              this.operationLog = `Peek: Front element is ${this.queue[0].value}`;
+            } else {
+              this.operationLog = `Queue is empty`;
+            }
+          }
+        }
+
+        this.currentOperation.completed = true;
+        this.currentOperation = null;
       }
     },
 
     setAnimationSpeed(speed: number) {
       this.animationSpeed = speed;
+      this.operationLog = `Animation speed set to ${speed}/5`;
     },
 
     togglePlayPause() {
@@ -452,14 +636,15 @@ export const useDataStructureStore = defineStore("dataStructure", {
       this.shouldReset = value;
     },
 
-    pushToStack(value: number) {
-      const newNode = {
+    pushToStack(value: any) {
+      if (!this.currentOperation || this.currentOperation.completed) return;
+
+      this.stack.push({
         value: value.toString(),
         highlighted: false,
-        status: "pushing",
-      };
-      this.stack = [...this.stack, newNode];
-      this.operationLog = `Pushed ${value} to the stack`;
+        status: "",
+      });
+      this.operationLog = `Pushed ${value} to stack`;
     },
 
     popFromStack() {
@@ -499,6 +684,54 @@ export const useDataStructureStore = defineStore("dataStructure", {
         this.operationLog = `${value} not found in stack`;
         return -1;
       }
+    },
+
+    pushToQueue(value: any) {
+      if (!this.currentOperation || this.currentOperation.completed) return;
+
+      this.queue.push({
+        value: value.toString(),
+        highlighted: false,
+        status: "",
+      });
+      this.operationLog = `Enqueued ${value}`;
+    },
+
+    dequeueFromQueue() {
+      if (this.queue.length > 0) {
+        const dequeuedValue = this.queue[0].value;
+        this.queue = this.queue.slice(1);
+        this.operationLog = `Dequeued ${dequeuedValue} from the queue`;
+      } else {
+        this.operationLog = "Cannot dequeue from empty queue";
+      }
+    },
+
+    peekQueue() {
+      if (this.queue.length > 0) {
+        const frontValue = this.queue[0].value;
+        this.operationLog = `Front element is ${frontValue}`;
+        return frontValue;
+      } else {
+        this.operationLog = "Queue is empty";
+        return null;
+      }
+    },
+
+    searchQueue(value: string) {
+      const index = this.queue.findIndex((node) => node.value === value);
+      if (index !== -1) {
+        this.operationLog = `Found ${value} at position ${index} from front`;
+        return index;
+      } else {
+        this.operationLog = `${value} not found in queue`;
+        return -1;
+      }
+    },
+
+    resetQueue() {
+      this.queue = [];
+      this.operationLog = "Queue has been reset";
     },
   },
 });
