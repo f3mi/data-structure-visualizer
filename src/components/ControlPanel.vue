@@ -330,6 +330,7 @@ function reset() {
   width: 100%;
   height: 4px;
   -webkit-appearance: none;
+  appearance: none;
   background: #e2e8f0;
   border-radius: 2px;
   outline: none;

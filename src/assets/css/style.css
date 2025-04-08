@@ -330,7 +330,8 @@ nav.navbar {
 
 .range-slider-input {
     -webkit-appearance: none;
-        width: 100%;
+    appearance: none;
+    width: 100%;
         height: 6px;
         border-radius: 3px;
         background: var(--border);
