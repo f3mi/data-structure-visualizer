@@ -29,11 +29,11 @@
         <template v-for="(node, index) in linkedList" :key="index">
           <div class="node-wrapper">
             <div 
-              class="node"
-              :class="{
-                'highlighted': node.highlighted,
-                'inserting': node.status === 'inserting',
-                'deleting': node.status === 'deleting',
+                class="node"
+                  :class="{
+                    'highlighted': node.highlighted,
+                    'inserting': node.status === 'inserting',
+                    'deleting': node.status === 'deleting',
                 'searching': node.status === 'searching',
                 'current': node.status === 'current',
                 'next': node.status === 'next',
@@ -42,21 +42,21 @@
               }"
             >
               <div class="node-value">{{ node.value }}</div>
-            </div>
+                </div>
             <div class="node-pointer" v-if="index < linkedList.length - 1">
-              <div class="pointer-line"></div>
-              <div class="pointer-arrow"></div>
-            </div>
-          </div>
+                  <div class="pointer-line"></div>
+                  <div class="pointer-arrow"></div>
+                </div>
+              </div>
         </template>
         
         <div v-if="linkedList.length === 0" class="empty-state">
           <div class="empty-icon">📋</div>
           <p class="empty-text">Empty linked list</p>
           <p class="empty-subtext">Use the control panel to add nodes</p>
-        </div>
-      </div>
-      
+            </div>
+          </div>
+          
       <div v-else class="loading-state">
         <div class="loading-spinner"></div>
         <p class="loading-text">{{ loadingMessage }}</p>
@@ -74,10 +74,10 @@
             <div class="code-line">{{ step.line }}</div>
             <div class="code-explanation">{{ step.explanation }}</div>
           </div>
-        </div>
-      </div>
-    </div>
-    
+            </div>
+            </div>
+          </div>
+          
     <div class="visualization-footer">
       <div class="status-card">
         <h4 class="status-title">Current Status</h4>
@@ -95,7 +95,7 @@
           <div class="detail-item">
             <span class="detail-label">Head:</span>
             <span class="detail-value">{{ linkedList.length > 0 ? linkedList[0].value : 'null' }}</span>
-          </div>
+            </div>
           <div class="detail-item">
             <span class="detail-label">Tail:</span>
             <span class="detail-value">{{ linkedList.length > 0 ? linkedList[linkedList.length - 1].value : 'null' }}</span>

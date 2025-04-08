@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { createPinia } from "pinia";
 
 interface Node {
   value: string;
@@ -36,6 +37,7 @@ export const useDataStructureStore = defineStore("dataStructure", {
     isPlaying: true,
     currentStep: 0,
     codeSteps: [] as CodeStep[],
+    shouldReset: false,
   }),
 
   actions: {
@@ -301,6 +303,83 @@ export const useDataStructureStore = defineStore("dataStructure", {
               highlight: false,
             },
           ];
+        case "Push":
+          return [
+            {
+              line: "stack.push(value)",
+              explanation: "Add new element to the top of the stack",
+              highlight: false,
+            },
+            {
+              line: "// Stack: [..., value]",
+              explanation: "New element is now at the top of the stack",
+              highlight: false,
+            },
+          ];
+        case "Pop":
+          return [
+            {
+              line: "if (!stack.isEmpty())",
+              explanation: "Check if stack is not empty",
+              highlight: false,
+            },
+            {
+              line: "  value = stack.pop()",
+              explanation: "Remove and return the top element",
+              highlight: false,
+            },
+            {
+              line: "// Stack: [...]",
+              explanation: "Top element has been removed",
+              highlight: false,
+            },
+          ];
+        case "Peek":
+          return [
+            {
+              line: "if (!stack.isEmpty())",
+              explanation: "Check if stack is not empty",
+              highlight: false,
+            },
+            {
+              line: "  value = stack.peek()",
+              explanation: "Return the top element without removing it",
+              highlight: false,
+            },
+          ];
+        case "Search":
+          return [
+            {
+              line: "current = stack.top",
+              explanation: "Start from the top of the stack",
+              highlight: false,
+            },
+            {
+              line: "while (current != null)",
+              explanation: "Traverse through the stack",
+              highlight: false,
+            },
+            {
+              line: "  if (current.value == target)",
+              explanation: "Check if current element matches target",
+              highlight: false,
+            },
+            {
+              line: "    return current",
+              explanation: "Element found",
+              highlight: false,
+            },
+            {
+              line: "  current = current.next",
+              explanation: "Move to next element",
+              highlight: false,
+            },
+            {
+              line: "return null",
+              explanation: "Element not found",
+              highlight: false,
+            },
+          ];
         default:
           return [];
       }
@@ -368,5 +447,60 @@ export const useDataStructureStore = defineStore("dataStructure", {
       }
       this.operationLog = "Reset completed";
     },
+
+    setReset(value: boolean) {
+      this.shouldReset = value;
+    },
+
+    pushToStack(value: number) {
+      const newNode = {
+        value: value.toString(),
+        highlighted: false,
+        status: "pushing",
+      };
+      this.stack = [...this.stack, newNode];
+      this.operationLog = `Pushed ${value} to the stack`;
+    },
+
+    popFromStack() {
+      if (this.stack.length > 0) {
+        const poppedValue = this.stack[this.stack.length - 1].value;
+        this.stack = this.stack.slice(0, -1);
+        this.operationLog = `Popped ${poppedValue} from the stack`;
+      } else {
+        this.operationLog = "Cannot pop from empty stack";
+      }
+    },
+
+    resetStack() {
+      this.stack = [];
+      this.operationLog = "Stack has been reset";
+    },
+
+    peekStack() {
+      if (this.stack.length > 0) {
+        const topValue = this.stack[this.stack.length - 1].value;
+        this.operationLog = `Top element is ${topValue}`;
+        return topValue;
+      } else {
+        this.operationLog = "Stack is empty";
+        return null;
+      }
+    },
+
+    searchStack(value: string) {
+      const index = this.stack.findIndex((node) => node.value === value);
+      if (index !== -1) {
+        this.operationLog = `Found ${value} at position ${
+          this.stack.length - index - 1
+        } from top`;
+        return index;
+      } else {
+        this.operationLog = `${value} not found in stack`;
+        return -1;
+      }
+    },
   },
 });
+
+export const pinia = createPinia();

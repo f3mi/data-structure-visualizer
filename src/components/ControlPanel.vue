@@ -11,20 +11,25 @@
         <select 
           v-model="selectedOperation" 
           class="control-select"
-          :class="{ 'has-value': selectedOperation }"
+          @change="handleOperationChange"
         >
-          <option value="" disabled>Select an operation</option>
-          <option v-for="op in availableOperations" :key="op" :value="op">
-            {{ op }}
-          </option>
+          <option v-if="activeDataStructure === 'Linked List'" value="Insert at Head">Insert at Head</option>
+          <option v-if="activeDataStructure === 'Linked List'" value="Insert at Tail">Insert at Tail</option>
+          <option v-if="activeDataStructure === 'Linked List'" value="Delete at Head">Delete at Head</option>
+          <option v-if="activeDataStructure === 'Linked List'" value="Delete at Tail">Delete at Tail</option>
+          <option v-if="activeDataStructure === 'Linked List'" value="Search">Search</option>
+          <option v-if="activeDataStructure === 'Stack'" value="Push">Push</option>
+          <option v-if="activeDataStructure === 'Stack'" value="Pop">Pop</option>
+          <option v-if="activeDataStructure === 'Stack'" value="Peek">Peek</option>
+          <option v-if="activeDataStructure === 'Stack'" value="Search">Search</option>
         </select>
       </div>
       
       <!-- Value Input -->
-      <div class="control-group" v-if="operationRequiresValue">
+      <div class="control-group" v-if="showValueInput">
         <label class="control-label">Value</label>
         <input 
-          type="text" 
+          type="number" 
           v-model="operationValue" 
           class="control-input"
           placeholder="Enter value"
@@ -47,7 +52,7 @@
       <button 
         @click="executeOperation" 
         class="execute-button"
-        :disabled="!selectedOperation || (operationRequiresValue && !operationValue)"
+        :disabled="!selectedOperation || (showValueInput && !operationValue)"
       >
         <span class="button-text">Execute</span>
         <span class="button-icon">→</span>
@@ -57,13 +62,14 @@
       <div class="control-group">
         <div class="speed-control">
           <label class="control-label">Animation Speed</label>
-          <span class="speed-value">{{ speed }}/10</span>
+          <span class="speed-value">{{ animationSpeed }}/10</span>
         </div>
         <input 
           type="range" 
-          v-model="speed" 
-          min="1" 
-          max="10" 
+          v-model="animationSpeed" 
+          min="0.1" 
+          max="2" 
+          step="0.1"
           class="speed-slider"
         >
         <div class="speed-labels">
@@ -111,14 +117,14 @@ const isPlaying = computed(() => store.isPlaying);
 const operationLog = computed(() => store.operationLog);
 
 const selectedOperation = ref('');
-const operationValue = ref('');
+const operationValue = ref<number | null>(null);
 const operationIndex = ref(0);
-const speed = ref(5);
+const animationSpeed = ref(1);
 
 // Operations available for each data structure
 const operationsMap = {
   'Linked List': ['Insert at Head', 'Insert at Tail', 'Insert at Index', 'Delete at Head', 'Delete at Tail', 'Delete at Index', 'Search'],
-  'Stack': ['Push', 'Pop', 'Peek'],
+  'Stack': ['Push', 'Pop', 'Peek', 'Search'],
   'Queue': ['Enqueue', 'Dequeue', 'Peek'],
   'Binary Tree': ['Insert', 'Delete', 'Search', 'In-order Traversal', 'Pre-order Traversal', 'Post-order Traversal'],
   'Heap': ['Insert', 'Extract Min/Max', 'Heapify'],
@@ -129,9 +135,13 @@ const availableOperations = computed(() => {
   return operationsMap[activeDataStructure.value as keyof typeof operationsMap] || [];
 });
 
-const operationRequiresValue = computed(() => {
-  const noValueOperations = ['Delete at Head', 'Delete at Tail', 'Pop', 'Dequeue', 'Peek', 'Extract Min/Max', 'In-order Traversal', 'Pre-order Traversal', 'Post-order Traversal', 'BFS', 'DFS'];
-  return !noValueOperations.includes(selectedOperation.value);
+const showValueInput = computed(() => {
+  return (
+    selectedOperation.value === 'Insert at Head' ||
+    selectedOperation.value === 'Insert at Tail' ||
+    selectedOperation.value === 'Push' ||
+    selectedOperation.value === 'Search'
+  );
 });
 
 const operationRequiresIndex = computed(() => {
@@ -140,15 +150,26 @@ const operationRequiresIndex = computed(() => {
 
 watch(activeDataStructure, () => {
   selectedOperation.value = availableOperations.value[0] || '';
-  operationValue.value = '';
+  operationValue.value = null;
   operationIndex.value = 0;
 });
 
-watch(speed, (newSpeed) => {
+watch(animationSpeed, (newSpeed) => {
   store.setAnimationSpeed(newSpeed);
 });
 
+function handleOperationChange() {
+  operationValue.value = null;
+}
+
 function executeOperation() {
+  if (!selectedOperation.value) return;
+
+  if (showValueInput.value && operationValue.value === null) {
+    alert('Please enter a value');
+    return;
+  }
+
   store.setOperation(
     selectedOperation.value,
     operationValue.value,
@@ -156,8 +177,8 @@ function executeOperation() {
   );
   
   // Clear inputs after operation
-  if (operationRequiresValue.value) {
-    operationValue.value = '';
+  if (showValueInput.value) {
+    operationValue.value = null;
   }
   if (operationRequiresIndex.value) {
     operationIndex.value = 0;
