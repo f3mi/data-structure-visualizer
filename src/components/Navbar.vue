@@ -20,14 +20,14 @@
           {{ structure }}
         </button>
         
-        <div class="flex items-center ml-4">
+        <!-- <div class="flex items-center ml-4">
           <span class="text-sm mr-2">Theme</span>
           <div 
             class="theme-toggle" 
             :class="{ 'active': isDarkMode }"
             @click="toggleDarkMode"
           ></div>
-        </div>
+        </div> -->
       </div>
       
       <!-- Mobile menu button -->

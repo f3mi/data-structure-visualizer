@@ -1,52 +1,51 @@
 <template>
-  <div class="min-h-screen bg-gray-50 flex flex-col" :class="{ 'dark-theme': isDarkMode }">
+  <div class="app-container" :class="{ 'dark-theme': isDarkMode }">
     <Navbar @toggle-dark-mode="toggleDarkMode" :isDarkMode="isDarkMode" />
-    <main class="container mx-auto px-4 py-8 flex-grow">
-      <div class="card p-6">
-        <div class="mb-6">
-          <div class="flex justify-between items-center">
-            <div>
-              <h2 class="text-2xl font-bold text-gray-800">{{ activeDataStructure }}</h2>
-              <p class="text-gray-600">{{ dataStructureDescriptions[activeDataStructure] }}</p>
-            </div>
-            <div class="flex items-center space-x-2">
-              <span class="text-sm text-gray-500">Theme</span>
-              <div 
-                class="dark-mode-toggle" 
-                :class="{ 'active': isDarkMode }"
-                @click="toggleDarkMode"
-              ></div>
+    <main class="main-content">
+      <div class="visualization-container">
+        <div class="header-section">
+          <div class="title-section">
+            <h1 class="main-title">{{ activeDataStructure }}</h1>
+            <p class="description">{{ dataStructureDescriptions[activeDataStructure] }}</p>
+          </div>
+          <div class="theme-control">
+            <span class="theme-label">Theme</span>
+            <div 
+              class="theme-toggle" 
+              :class="{ 'active': isDarkMode }"
+              @click="toggleDarkMode"
+            >
+              <div class="toggle-handle"></div>
             </div>
           </div>
         </div>
         
-        <div class="flex gap-6 flex-col lg:flex-row">
-          <div class="lg:w-3/4">
+        <div class="content-grid">
+          <div class="visualizer-section">
             <Visualizer />
           </div>
-          <div class="lg:w-1/4">
+          <div class="control-section">
             <ControlPanel />
           </div>
         </div>
       </div>
       
-      <!-- Info section -->
-      <div class="mt-8 card p-6">
-        <h3 class="text-xl font-semibold mb-3">About {{ activeDataStructure }}</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h4 class="font-medium text-lg mb-2">Time Complexity</h4>
-            <div class="space-y-2">
+      <div class="info-section">
+        <h2 class="section-title">About {{ activeDataStructure }}</h2>
+        <div class="info-grid">
+          <div class="complexity-card">
+            <h3 class="card-title">Time Complexity</h3>
+            <div class="complexity-list">
               <div v-for="(complexity, operation) in timeComplexity[activeDataStructure]" :key="operation" 
-                   class="flex justify-between items-center p-2 bg-gray-100 rounded">
-                <span>{{ operation }}</span>
-                <span class="font-mono text-primary-dark">{{ complexity }}</span>
+                   class="complexity-item">
+                <span class="operation">{{ operation }}</span>
+                <span class="notation">{{ complexity }}</span>
               </div>
             </div>
           </div>
-          <div>
-            <h4 class="font-medium text-lg mb-2">Common Uses</h4>
-            <ul class="list-disc pl-5 space-y-1">
+          <div class="uses-card">
+            <h3 class="card-title">Common Uses</h3>
+            <ul class="uses-list">
               <li v-for="(use, index) in commonUses[activeDataStructure]" :key="index">
                 {{ use }}
               </li>
@@ -55,13 +54,13 @@
         </div>
       </div>
     </main>
-    <footer class="footer text-center py-4">
-      <div class="container mx-auto px-4">
-        <p>Data Structure Visualizer | Built with Vue.js & TypeScript</p>
-        <div class="flex justify-center space-x-4 mt-2">
-          <a href="#" class="text-gray-300 hover:text-white transition-colors">GitHub</a>
-          <a href="#" class="text-gray-300 hover:text-white transition-colors">Portfolio</a>
-          <a href="#" class="text-gray-300 hover:text-white transition-colors">Contact</a>
+    <footer class="app-footer">
+      <div class="footer-content">
+        <p class="footer-text">Data Structure Visualizer | Built with Vue.js & TypeScript</p>
+        <div class="footer-links">
+          <a href="#" class="footer-link">GitHub</a>
+          <a href="#" class="footer-link">Portfolio</a>
+          <a href="#" class="footer-link">Contact</a>
         </div>
       </div>
     </footer>
@@ -175,4 +174,294 @@ function toggleDarkMode() {
   }
 }
 </script>
+
+<style scoped>
+.app-container {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  color: #2c3e50;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.dark-theme {
+  background-color: #1a1a1a;
+  color: #f8f9fa;
+}
+
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.visualization-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.dark-theme .visualization-container {
+  background: #2d2d2d;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.title-section {
+  flex: 1;
+}
+
+.main-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #2c3e50;
+}
+
+.dark-theme .main-title {
+  color: #f8f9fa;
+}
+
+.description {
+  font-size: 1rem;
+  color: #666;
+  max-width: 600px;
+}
+
+.dark-theme .description {
+  color: #aaa;
+}
+
+.theme-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.theme-label {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.dark-theme .theme-label {
+  color: #aaa;
+}
+
+.theme-toggle {
+  width: 40px;
+  height: 20px;
+  background-color: #e2e8f0;
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.dark-theme .theme-toggle {
+  background-color: #4a5568;
+}
+
+.theme-toggle.active {
+  background-color: #4299e1;
+}
+
+.toggle-handle {
+  width: 16px;
+  height: 16px;
+  background-color: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s;
+}
+
+.theme-toggle.active .toggle-handle {
+  transform: translateX(20px);
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 2rem;
+}
+
+.visualizer-section {
+  min-height: 400px;
+}
+
+.control-section {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.dark-theme .control-section {
+  background: #2d2d2d;
+}
+
+.info-section {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+.dark-theme .info-section {
+  background: #2d2d2d;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+}
+
+.dark-theme .section-title {
+  color: #f8f9fa;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.complexity-card, .uses-card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.dark-theme .complexity-card,
+.dark-theme .uses-card {
+  background: #1a1a1a;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.dark-theme .card-title {
+  color: #f8f9fa;
+}
+
+.complexity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.complexity-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 6px;
+}
+
+.dark-theme .complexity-item {
+  background: #2d2d2d;
+}
+
+.operation {
+  color: #4a5568;
+}
+
+.dark-theme .operation {
+  color: #cbd5e0;
+}
+
+.notation {
+  font-family: 'Fira Code', monospace;
+  color: #4299e1;
+  font-weight: 600;
+}
+
+.uses-list {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  color: #4a5568;
+}
+
+.dark-theme .uses-list {
+  color: #cbd5e0;
+}
+
+.uses-list li {
+  margin-bottom: 0.5rem;
+}
+
+.app-footer {
+  background: #2d2d2d;
+  color: #f8f9fa;
+  padding: 2rem 0;
+  margin-top: 4rem;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  text-align: center;
+}
+
+.footer-text {
+  margin-bottom: 1rem;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.footer-link {
+  color: #cbd5e0;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.footer-link:hover {
+  color: #f8f9fa;
+}
+
+@media (max-width: 1024px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1rem;
+  }
+  
+  .header-section {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .theme-control {
+    align-self: flex-end;
+  }
+}
+</style>
 
