@@ -28,6 +28,9 @@
           <option v-if="activeDataStructure === 'Queue'" value="Dequeue">Dequeue</option>
           <option v-if="activeDataStructure === 'Queue'" value="Peek">Peek</option>
           <option v-if="activeDataStructure === 'Queue'" value="Search">Search</option>
+          <option v-if="activeDataStructure === 'Binary Tree'" value="Insert">Insert</option>
+          <option v-if="activeDataStructure === 'Binary Tree'" value="Delete">Delete</option>
+          <option v-if="activeDataStructure === 'Binary Tree'" value="Search">Search</option>
         </select>
       </div>
       
@@ -38,7 +41,7 @@
           type="number" 
           v-model="operationValue" 
           class="control-input"
-          placeholder="Enter value"
+          :placeholder="getValuePlaceholder"
         >
       </div>
 
@@ -132,7 +135,7 @@ const operationsMap = {
   'Linked List': ['Insert at Head', 'Insert at Tail', 'Insert at Index', 'Delete at Head', 'Delete at Tail', 'Delete at Index', 'Search'],
   'Stack': ['Push', 'Pop', 'Peek', 'Search'],
   'Queue': ['Enqueue', 'Dequeue', 'Peek'],
-  'Binary Tree': ['Insert', 'Delete', 'Search', 'In-order Traversal', 'Pre-order Traversal', 'Post-order Traversal'],
+  'Binary Tree': ['Insert', 'Delete', 'Search'],
   'Heap': ['Insert', 'Extract Min/Max', 'Heapify'],
   'Graph': ['Add Vertex', 'Add Edge', 'Remove Vertex', 'Remove Edge', 'BFS', 'DFS']
 };
@@ -148,7 +151,9 @@ const showValueInput = computed(() => {
     selectedOperation.value === 'Insert at Index' ||
     selectedOperation.value === 'Push' ||
     selectedOperation.value === 'Enqueue' ||
-    selectedOperation.value === 'Search'
+    selectedOperation.value === 'Search' ||
+    selectedOperation.value === 'Insert' ||
+    selectedOperation.value === 'Delete'
   );
 });
 
@@ -200,6 +205,19 @@ function togglePlayPause() {
 function reset() {
   store.reset();
 }
+
+const getValuePlaceholder = computed(() => {
+  if (selectedOperation.value === 'Search') {
+    return 'Enter value to search';
+  }
+  if (selectedOperation.value === 'Insert') {
+    return 'Enter value to insert';
+  }
+  if (selectedOperation.value === 'Delete') {
+    return 'Enter value to delete';
+  }
+  return 'Enter value';
+});
 </script>
 
 <style scoped>

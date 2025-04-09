@@ -22,13 +22,21 @@ interface Operation {
   codeSteps: CodeStep[];
 }
 
+export interface BinaryTreeNode {
+  value: number;
+  left: BinaryTreeNode | null;
+  right: BinaryTreeNode | null;
+  height: number;
+  status?: "current" | "found" | "traversed";
+}
+
 export const useDataStructureStore = defineStore("dataStructure", {
   state: () => ({
     activeDataStructure: "Linked List",
     linkedList: [] as Node[],
     stack: [] as Node[],
     queue: [] as Node[],
-    binaryTree: [] as any[],
+    binaryTree: null as BinaryTreeNode | null,
     heap: [] as any[],
     graph: { nodes: [], edges: [] } as any,
     currentOperation: null as Operation | null,
@@ -505,6 +513,100 @@ export const useDataStructureStore = defineStore("dataStructure", {
               highlight: false,
             },
           ];
+        case "Insert":
+          return [
+            {
+              line: "newNode = Node(value)",
+              explanation: "Create new node with value",
+              highlight: false,
+            },
+            {
+              line: "if tree is empty:",
+              explanation: "Check if tree is empty",
+              highlight: false,
+            },
+            {
+              line: "    root = newNode",
+              explanation: "Set root to new node",
+              highlight: false,
+            },
+            {
+              line: "else:",
+              explanation: "Tree not empty",
+              highlight: false,
+            },
+            {
+              line: "    find first available spot",
+              explanation: "Find first available position",
+              highlight: false,
+            },
+            {
+              line: "    insert node",
+              explanation: "Insert node at found position",
+              highlight: false,
+            },
+          ];
+        case "Delete":
+          return [
+            {
+              line: "if tree is empty:",
+              explanation: "Check if tree is empty",
+              highlight: false,
+            },
+            {
+              line: "    return null",
+              explanation: "Nothing to delete",
+              highlight: false,
+            },
+            {
+              line: "find last node",
+              explanation: "Find the last node in the tree",
+              highlight: false,
+            },
+            {
+              line: "update parent references",
+              explanation: "Update parent node references",
+              highlight: false,
+            },
+            {
+              line: "remove node",
+              explanation: "Remove the node from the tree",
+              highlight: false,
+            },
+          ];
+        case "Search":
+          return [
+            {
+              line: "current = root",
+              explanation: "Start from root node",
+              highlight: false,
+            },
+            {
+              line: "while current:",
+              explanation: "Traverse tree",
+              highlight: false,
+            },
+            {
+              line: "    if current.value == target:",
+              explanation: "Check current node",
+              highlight: false,
+            },
+            {
+              line: "        return current",
+              explanation: "Value found",
+              highlight: false,
+            },
+            {
+              line: "    current = current.next",
+              explanation: "Move to next node",
+              highlight: false,
+            },
+            {
+              line: "return null",
+              explanation: "Value not found",
+              highlight: false,
+            },
+          ];
         default:
           return [];
       }
@@ -620,7 +722,7 @@ export const useDataStructureStore = defineStore("dataStructure", {
           this.queue = [];
           break;
         case "Binary Tree":
-          this.binaryTree = [];
+          this.binaryTree = null;
           break;
         case "Heap":
           this.heap = [];
@@ -732,6 +834,134 @@ export const useDataStructureStore = defineStore("dataStructure", {
     resetQueue() {
       this.queue = [];
       this.operationLog = "Queue has been reset";
+    },
+
+    // Helper function to get height of a node
+    getHeight(node: BinaryTreeNode | null): number {
+      return node ? node.height : 0;
+    },
+
+    // Helper function to update height of a node
+    updateHeight(node: BinaryTreeNode): void {
+      node.height =
+        Math.max(this.getHeight(node.left), this.getHeight(node.right)) + 1;
+    },
+
+    // Helper function to get balance factor
+    getBalanceFactor(node: BinaryTreeNode): number {
+      return this.getHeight(node.left) - this.getHeight(node.right);
+    },
+
+    // Right rotation
+    rotateRight(y: BinaryTreeNode): BinaryTreeNode {
+      const x = y.left!;
+      const T2 = x.right;
+
+      x.right = y;
+      y.left = T2;
+
+      this.updateHeight(y);
+      this.updateHeight(x);
+
+      return x;
+    },
+
+    // Left rotation
+    rotateLeft(x: BinaryTreeNode): BinaryTreeNode {
+      const y = x.right!;
+      const T2 = y.left;
+
+      y.left = x;
+      x.right = T2;
+
+      this.updateHeight(x);
+      this.updateHeight(y);
+
+      return y;
+    },
+
+    // Balance the tree
+    balance(node: BinaryTreeNode): BinaryTreeNode {
+      this.updateHeight(node);
+      const balanceFactor = this.getBalanceFactor(node);
+
+      // Left heavy
+      if (balanceFactor > 1) {
+        if (this.getBalanceFactor(node.left!) < 0) {
+          node.left = this.rotateLeft(node.left!);
+        }
+        return this.rotateRight(node);
+      }
+
+      // Right heavy
+      if (balanceFactor < -1) {
+        if (this.getBalanceFactor(node.right!) > 0) {
+          node.right = this.rotateRight(node.right!);
+        }
+        return this.rotateLeft(node);
+      }
+
+      return node;
+    },
+
+    // Insert into binary tree with balancing
+    insertToBinaryTree(value: number): void {
+      const insertNode = (
+        node: BinaryTreeNode | null,
+        value: number
+      ): BinaryTreeNode => {
+        if (!node) {
+          return { value, left: null, right: null, height: 1 };
+        }
+
+        if (value < node.value) {
+          node.left = insertNode(node.left, value);
+        } else if (value > node.value) {
+          node.right = insertNode(node.right, value);
+        } else {
+          return node; // Duplicate values not allowed
+        }
+
+        return this.balance(node);
+      };
+
+      this.binaryTree = insertNode(this.binaryTree, value);
+    },
+
+    // Delete from binary tree with balancing
+    deleteFromBinaryTree(value: number): void {
+      const findMin = (node: BinaryTreeNode): BinaryTreeNode => {
+        while (node.left) {
+          node = node.left;
+        }
+        return node;
+      };
+
+      const deleteNode = (
+        node: BinaryTreeNode | null,
+        value: number
+      ): BinaryTreeNode | null => {
+        if (!node) return null;
+
+        if (value < node.value) {
+          node.left = deleteNode(node.left, value);
+        } else if (value > node.value) {
+          node.right = deleteNode(node.right, value);
+        } else {
+          if (!node.left || !node.right) {
+            node = node.left || node.right;
+          } else {
+            const temp = findMin(node.right);
+            node.value = temp.value;
+            node.right = deleteNode(node.right, temp.value);
+          }
+        }
+
+        if (!node) return null;
+        return this.balance(node);
+      };
+
+      this.binaryTree = deleteNode(this.binaryTree, value);
     },
   },
 });
